@@ -14,17 +14,21 @@ interface TestCase {
 
 (async (): Promise<void> => {
   const testCases: TestCase[] = [
+    // {
+    //   testRunner: './contexts/no_workspace_no_ruleset/configuration',
+    //   workspace: undefined,
+    // },
+    // {
+    //   testRunner: './contexts/workspace_basic_ruleset/configuration',
+    //   workspace: './workspaces/basic_ruleset/',
+    // },
+    // {
+    //   testRunner: './contexts/workspace_basic_ruleset_with_functions/configuration',
+    //   workspace: './workspaces/basic_ruleset_with_functions/',
+    // },
     {
-      testRunner: './contexts/no_workspace_no_ruleset/configuration',
-      workspace: undefined,
-    },
-    {
-      testRunner: './contexts/workspace_basic_ruleset/configuration',
-      workspace: './workspaces/basic_ruleset/',
-    },
-    {
-      testRunner: './contexts/workspace_basic_ruleset_with_functions/configuration',
-      workspace: './workspaces/basic_ruleset_with_functions/',
+      testRunner: './contexts/workspace_remote_ruleset/configuration',
+      workspace: './workspaces/remote_ruleset/',
     },
   ];
 

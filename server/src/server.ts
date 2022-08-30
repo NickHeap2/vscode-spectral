@@ -31,6 +31,7 @@ import {
 } from './notifications';
 import { BufferedMessageQueue } from './queue';
 import { makePublishDiagnosticsParams } from './util';
+import * as tmp from 'tmp';
 
 /**
  * The connection on which communication between the extension (client) and the
@@ -187,14 +188,35 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
       //  Open topics:
       //    Should we default to oas when nothing is found?
 
+      connection.console.log(`Using ruleset file: ${configuration.rulesetFile}.`);
+
       if (configuration.rulesetFile) {
+        // check for a remote ruleset
+        let actualRulesetFile: string = configuration.rulesetFile;
+        connection.console.log(`Is ${actualRulesetFile} a URI?: ${URI.isUri(actualRulesetFile)}.`);
+        // if (URI.isUri(actualRulesetFile)) {
+        if (actualRulesetFile) {
+          connection.console.log(`Downloading ruleset file: ${actualRulesetFile}.`);
+
+          const ruleSetUri: URI = URI.parse(actualRulesetFile);
+          if (ruleSetUri.scheme === 'http' || ruleSetUri.scheme === 'https') {
+            // download file to temp directory
+            const response: any = await fetch(ruleSetUri.toString());
+            const remoteRulesetText: string = await response.text();
+            const tempFileName: tmp.FileResult = tmp.fileSync();
+            fs.writeFileSync(tempFileName.name, remoteRulesetText);
+            actualRulesetFile = tempFileName.name;
+            connection.console.log(`Using temp ruleset file: ${actualRulesetFile}.`);
+          }
+        }
+
         // A ruleset was specified, use that if it exists (relative to workspace).
         if (configuration.workspaceFolder) {
           // Calculate the absolute path to the ruleset.
-          rulesetFile = path.resolve(getDocumentPath(configuration.workspaceFolder.uri) ?? '', configuration.rulesetFile);
+          rulesetFile = path.resolve(getDocumentPath(configuration.workspaceFolder.uri) ?? '', actualRulesetFile);
         } else {
           // Somehow(?) there's no workspace path (maybe it's just an open file?) so... do our best.
-          rulesetFile = configuration.rulesetFile;
+          rulesetFile = actualRulesetFile;
         }
       } else {
         // Nothing configured, load the default (.spectral.yml in the same folder as the workspace).
