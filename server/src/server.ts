@@ -193,21 +193,20 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
       if (configuration.rulesetFile) {
         // check for a remote ruleset
         let actualRulesetFile: string = configuration.rulesetFile;
-        connection.console.log(`Is ${actualRulesetFile} a URI?: ${URI.isUri(actualRulesetFile)}.`);
-        // if (URI.isUri(actualRulesetFile)) {
-        if (actualRulesetFile) {
+        const ruleSetUri: URI = URI.parse(actualRulesetFile);
+
+        connection.console.log(`Is ${actualRulesetFile} a http/https URI?: ${URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http')}.`);
+        if (URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http')) {
           connection.console.log(`Downloading ruleset file: ${actualRulesetFile}.`);
 
-          const ruleSetUri: URI = URI.parse(actualRulesetFile);
-          if (ruleSetUri.scheme === 'http' || ruleSetUri.scheme === 'https') {
-            // download file to temp directory
-            const response: any = await fetch(ruleSetUri.toString());
-            const remoteRulesetText: string = await response.text();
-            const tempFileName: tmp.FileResult = tmp.fileSync();
-            fs.writeFileSync(tempFileName.name, remoteRulesetText);
-            actualRulesetFile = tempFileName.name;
-            connection.console.log(`Using temp ruleset file: ${actualRulesetFile}.`);
-          }
+          // download ruleset
+          const response: any = await fetch(ruleSetUri.toString());
+          const remoteRulesetText: string = await response.text();
+          // write contents to temp file
+          const tempFileName: tmp.FileResult = tmp.fileSync();
+          fs.writeFileSync(tempFileName.name, remoteRulesetText);
+          actualRulesetFile = tempFileName.name;
+          connection.console.log(`Using temp ruleset file: ${actualRulesetFile}.`);
         }
 
         // A ruleset was specified, use that if it exists (relative to workspace).
