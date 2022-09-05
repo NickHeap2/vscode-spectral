@@ -4,6 +4,7 @@ import { randomBytes } from 'crypto';
 
 // The folder containing the Extension Manifest package.json
 // Passed to `--extensionDevelopmentPath`
+console.error(__dirname);
 const extensionDevelopmentPath = path.resolve(__dirname, '../../../../dist');
 console.info(`Loading extension from '${extensionDevelopmentPath}'`,);
 
@@ -14,10 +15,10 @@ interface TestCase {
 
 (async (): Promise<void> => {
   const testCases: TestCase[] = [
-    // {
-    //   testRunner: './contexts/no_workspace_no_ruleset/configuration',
-    //   workspace: undefined,
-    // },
+    {
+      testRunner: './contexts/no_workspace_no_ruleset/configuration',
+      workspace: undefined,
+    },
     // {
     //   testRunner: './contexts/workspace_basic_ruleset/configuration',
     //   workspace: './workspaces/basic_ruleset/',
@@ -26,10 +27,10 @@ interface TestCase {
     //   testRunner: './contexts/workspace_basic_ruleset_with_functions/configuration',
     //   workspace: './workspaces/basic_ruleset_with_functions/',
     // },
-    {
-      testRunner: './contexts/workspace_remote_ruleset/configuration',
-      workspace: './workspaces/remote_ruleset/',
-    },
+    // {
+    //   testRunner: './contexts/workspace_remote_ruleset/configuration',
+    //   workspace: './workspaces/remote_ruleset/',
+    // },
   ];
 
   try {
@@ -47,6 +48,7 @@ interface TestCase {
         tc.workspace = path.resolve(__dirname, tc.workspace);
       } else {
         tc.workspace = `blank_${randomBytes(8).toString('hex')}`;
+        launchArgs.push('--user-data-dir ./.vscode');
       }
 
       launchArgs.push(tc.workspace);
