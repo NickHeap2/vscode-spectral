@@ -13,72 +13,37 @@ interface TestCase {
   testRunner: string;
 }
 
-const fetchMock = require('fetch-mock');
-
-const responseBody = {
-  functions: [
-    "equalsCjs",
-    "equalsEsm"
-  ],
-  rules: {
-    'demand-newest-oas3': {
-      given: "$.openapi",
-      then: {
-        function: "equalsCjs",
-        functionOptions: {
-          value: "3.1.0"
-        }
-      }
-    },
-    'valid-document-version': {
-      given: "$.info.version",
-      then: {
-        function: "equalsEsm",
-        functionOptions: {
-          value: "2.0.0"
-        }
-      }
-    }
-  }
-}
-
-fetchMock.registerRoute([
-  {
-    name: 'session',
-    matcher: 'https://dev.api.oneadvanced.io/rules/.spectral.js',
-    response: {
-      body: JSON.stringify(responseBody),
-      // opts is as expected by https://github.com/bitinn/node-fetch/blob/master/lib/response.js
-      // headers should be passed as an object literal (fetch-mock will convert it into a Headers instance)
-      // status defaults to 200
-      opts: {
-        status: 200
-      }
-    }
-  }]);
-
 (async (): Promise<void> => {
   const testCases: TestCase[] = [
-    // {
-    //   testRunner: './contexts/no_workspace_no_ruleset/configuration',
-    //   workspace: undefined,
-    // },
-    // {
-    //   testRunner: './contexts/workspace_basic_ruleset/configuration',
-    //   workspace: './workspaces/basic_ruleset/',
-    // },
-    // {
-    //   testRunner: './contexts/workspace_basic_ruleset_with_functions/configuration',
-    //   workspace: './workspaces/basic_ruleset_with_functions/',
-    // },
     {
-      testRunner: './contexts/workspace_remote_ruleset/configuration',
+      testRunner: './contexts/no_workspace_no_ruleset/configuration',
+      workspace: undefined,
+    },
+    {
+      testRunner: './contexts/workspace_basic_ruleset/configuration',
+      workspace: './workspaces/basic_ruleset/',
+    },
+    {
+      testRunner: './contexts/workspace_basic_ruleset_with_functions/configuration',
+      workspace: './workspaces/basic_ruleset_with_functions/',
+    },
+    {
+      testRunner: './contexts/workspace_remote_ruleset_json/configuration',
+      workspace: './workspaces/remote_ruleset/',
+    },
+    {
+      testRunner: './contexts/workspace_remote_ruleset_yaml/configuration',
+      workspace: './workspaces/remote_ruleset/',
+    },
+    {
+      testRunner: './contexts/workspace_remote_ruleset_js/configuration',
       workspace: './workspaces/remote_ruleset/',
     },
   ];
 
   try {
     const vscodeExecutablePath = await downloadAndUnzipVSCode('1.48.0');
+
 
     for (const tc of testCases) {
       console.info(`Using VSCode from '${vscodeExecutablePath}'`,);
@@ -93,7 +58,7 @@ fetchMock.registerRoute([
       } else {
         tc.workspace = `blank_${randomBytes(8).toString('hex')}`;
         const userDataDir = path.resolve(__dirname, './.vscode');
-        console.info(`Using userDataDir '${userDataDir}'`)
+        console.info(`Using userDataDir '${userDataDir}'`);
         launchArgs.push('--user-data-dir');
         launchArgs.push(`${userDataDir}`);
       }

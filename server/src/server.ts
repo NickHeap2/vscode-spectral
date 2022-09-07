@@ -199,11 +199,12 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
         if (URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http')) {
           connection.console.log(`Downloading ruleset file: ${actualRulesetFile}.`);
 
+          const extension = path.extname(actualRulesetFile);
           // download ruleset
           const response: any = await fetch(ruleSetUri.toString());
           const remoteRulesetText: string = await response.text();
           // write contents to temp file
-          const tempFileName: tmp.FileResult = tmp.fileSync();
+          const tempFileName: tmp.FileResult = tmp.fileSync({ postfix: extension });
           fs.writeFileSync(tempFileName.name, remoteRulesetText);
           actualRulesetFile = tempFileName.name;
           connection.console.log(`Using temp ruleset file: ${actualRulesetFile}.`);
