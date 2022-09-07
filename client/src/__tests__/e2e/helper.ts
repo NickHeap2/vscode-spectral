@@ -9,23 +9,23 @@ export const activate = async (): Promise<void> => {
     throw new Error('Unable to activate the extension');
   }
 
-  await ext.activate()
+  await ext.activate();
 
   console.info(`Extension '${ext.id}' v${ext.packageJSON.version} has been successfully activated.`);
 };
 
 export const getRulesetFile = (): any => {
-  return vscode.workspace.getConfiguration('spectral').get('rulesetFile')
-}
+  return vscode.workspace.getConfiguration('spectral').get('rulesetFile');
+};
 
 export const setRulesetFile = (rulesetFile: string): void => {
   try {
     vscode.workspace.getConfiguration('spectral')
-      .update('rulesetFile', rulesetFile, true, false)
+      .update('rulesetFile', rulesetFile, true, false);
   } catch (error) {
-    console.log(error)
+    console.log(error);
   }
-}
+};
 
 async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));

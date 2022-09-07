@@ -5,49 +5,47 @@ import * as chaiJestSnapshot from 'chai-jest-snapshot';
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-//import * as sinon from 'sinon';
-
-import { openFile, activate, setRulesetFile, retrieveOutputChannelId, readFromOutputChannelId } from '../../helper';
+import { openFile, activate, setRulesetFile } from '../../helper';
 import { workspace } from 'vscode';
 
-// import { fetch } from '@stoplight/spectral-runtime';
+import * as httpTestServers from 'http-test-servers';
 
-// const responseObject = {
-//   functions: [
-//     "equalsCjs",
-//     "equalsEsm"
-//   ],
-//   rules: {
-//     'demand-newest-oas3': {
-//       given: "$.openapi",
-//       then: {
-//         function: "equalsCjs",
-//         functionOptions: {
-//           value: "3.1.0"
-//         }
-//       }
-//     },
-//     'valid-document-version': {
-//       given: "$.info.version",
-//       then: {
-//         function: "equalsEsm",
-//         functionOptions: {
-//           value: "2.0.0"
-//         }
-//       }
-//     }
-//   }
-// }
-// //const fetch = sinon.stub();
-// var mockedFetch = sinon.mock(fetch).expects('fetch')
-// mockedFetch.returns(Promise.resolve(responseObject))
+const responseBody = `import { oas } from '@stoplight/spectral-rulesets';
 
-// // sinon.stub(fetch, 'Promise')
-// //
+var _migratedRuleset = {
+  "extends": oas,
+  "rules": {
+    "oas3-schema": "hint",
+    "info-contact": "off"
+  }
+};
+
+export { _migratedRuleset as default };
+`;
+
+const routes = {
+  spectralJs: {
+    route: '/.spectral.js',
+    method: 'get',
+    statusCode: 200,
+    response: responseBody,
+  },
+};
+
+const servers = {
+  spectralJs: {
+    port: 3006,
+    delay: 1000,
+  },
+};
+const testServers = httpTestServers(routes, servers);
 
 suiteSetup(async () => {
+  await testServers.start(() => {
+    console.log('Staring test servers on port 3006...');
+  });
   chaiJestSnapshot.resetSnapshotRegistry();
-  setRulesetFile('https://dev.api.oneadvanced.io/rules/.spectral.js');
+  setRulesetFile('http://localhost:3006/.spectral.js');
 
   await activate();
 });
@@ -57,7 +55,13 @@ setup(function() {
   chaiJestSnapshot.configureUsingMochaContext(this);
 });
 
-suite('Workspace, remote ruleset', () => {
+suiteTeardown(async () => {
+  await testServers.kill(() => {
+    console.log('Test servers stopped.');
+  });
+});
+
+suite('Workspace, remote ruleset js', () => {
   suite('No diagnostics for empty files', () => {
     ['empty.yaml', 'empty.json'].forEach((fixture) => {
       test(`${fixture}`, async () => {
@@ -92,11 +96,11 @@ suite('Workspace, remote ruleset', () => {
     const docUri = vscode.Uri.file(docPath);
     await openFile(docUri);
 
-    console.error('Reading output channel...');
-    const channelId: vscode.Uri = await retrieveOutputChannelId();
-    const text = await readFromOutputChannelId(channelId);
-    console.error(text);
-    console.error('Read output channel');
+    // console.error('Reading output channel...');
+    // const channelId: vscode.Uri = await retrieveOutputChannelId();
+    // const text = await readFromOutputChannelId(channelId);
+    // console.error(text);
+    // console.error('Read output channel');
 
     return vscode.languages.getDiagnostics(docUri);
   };

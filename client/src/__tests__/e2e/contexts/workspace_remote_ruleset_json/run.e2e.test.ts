@@ -6,10 +6,42 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 
 import { openFile, activate, setRulesetFile } from '../../helper';
+import { workspace } from 'vscode';
+
+import * as httpTestServers from 'http-test-servers';
+
+const responseBody = {
+  extends: 'spectral:oas',
+  rules: {
+    'oas3-schema': 'hint',
+    'info-contact': 'off',
+  },
+};
+
+const routes = {
+  spectralJs: {
+    route: '/spectral.json',
+    method: 'get',
+    statusCode: 200,
+    response: responseBody,
+  },
+};
+
+const servers = {
+  spectralJs: {
+    port: 3006,
+    delay: 1000,
+  },
+};
+const testServers = httpTestServers(routes, servers);
 
 suiteSetup(async () => {
+  await testServers.start(() => {
+    console.log('Staring test servers on port 3006...');
+  });
   chaiJestSnapshot.resetSnapshotRegistry();
-  setRulesetFile('');
+  setRulesetFile('http://localhost:3006/spectral.json');
+
   await activate();
 });
 
@@ -18,7 +50,13 @@ setup(function() {
   chaiJestSnapshot.configureUsingMochaContext(this);
 });
 
-suite('No workspace, no ruleset', () => {
+suiteTeardown(async () => {
+  await testServers.kill(() => {
+    console.log('Test servers stopped.');
+  });
+});
+
+suite('Workspace, remote ruleset json', () => {
   suite('No diagnostics for empty files', () => {
     ['empty.yaml', 'empty.json'].forEach((fixture) => {
       test(`${fixture}`, async () => {
@@ -47,13 +85,17 @@ suite('No workspace, no ruleset', () => {
     });
   });
 
-  const pathToFixtures = '../../fixtures';
-
   const lint = async (pathSegments: string[]) => {
-    const docPath = path.resolve(__dirname, pathToFixtures, ...pathSegments);
+    const docPath = path.resolve(workspace.rootPath as string, ...pathSegments);
 
     const docUri = vscode.Uri.file(docPath);
     await openFile(docUri);
+
+    // console.error('Reading output channel...');
+    // const channelId: vscode.Uri = await retrieveOutputChannelId();
+    // const text = await readFromOutputChannelId(channelId);
+    // console.error(text);
+    // console.error('Read output channel');
 
     return vscode.languages.getDiagnostics(docUri);
   };
