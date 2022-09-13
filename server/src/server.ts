@@ -31,7 +31,7 @@ import {
 } from './notifications';
 import { BufferedMessageQueue } from './queue';
 import { makePublishDiagnosticsParams } from './util';
-import * as tmp from 'tmp';
+// import * as tmp from 'tmp';
 
 /**
  * The connection on which communication between the extension (client) and the
@@ -192,31 +192,33 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
 
       if (configuration.rulesetFile) {
         // check for a remote ruleset
-        let actualRulesetFile: string = configuration.rulesetFile;
-        const ruleSetUri: URI = URI.parse(actualRulesetFile);
+        // let actualRulesetFile: string = configuration.rulesetFile;
+        // const ruleSetUri: URI = URI.parse(actualRulesetFile);
 
-        connection.console.log(`Is ${actualRulesetFile} a http/https URI?: ${URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http')}.`);
-        if (URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http')) {
-          connection.console.log(`Downloading ruleset file: ${actualRulesetFile}.`);
+        // connection.console.log(`Is ${actualRulesetFile} a http/https URI?: ${URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http')}.`);
+        // if (URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http')) {
+        //   connection.console.log(`Downloading ruleset file: ${actualRulesetFile}.`);
 
-          const extension = path.extname(actualRulesetFile);
-          // download ruleset
-          const response: any = await fetch(ruleSetUri.toString());
-          const remoteRulesetText: string = await response.text();
-          // write contents to temp file
-          const tempFileName: tmp.FileResult = tmp.fileSync({ postfix: extension });
-          fs.writeFileSync(tempFileName.name, remoteRulesetText);
-          actualRulesetFile = tempFileName.name;
-          connection.console.log(`Using temp ruleset file: ${actualRulesetFile}.`);
-        }
+        //   const extension = path.extname(actualRulesetFile);
+        //   // download ruleset
+        //   const response: any = await fetch(ruleSetUri.toString());
+        //   const remoteRulesetText: string = await response.text();
+        //   // write contents to temp file
+        //   const tempFileName: tmp.FileResult = tmp.fileSync({ postfix: extension });
+        //   fs.writeFileSync(tempFileName.name, remoteRulesetText);
+        //   actualRulesetFile = tempFileName.name;
+        //   connection.console.log(`Using temp ruleset file: ${actualRulesetFile}.`);
+        // }
 
         // A ruleset was specified, use that if it exists (relative to workspace).
         if (configuration.workspaceFolder) {
           // Calculate the absolute path to the ruleset.
-          rulesetFile = path.resolve(getDocumentPath(configuration.workspaceFolder.uri) ?? '', actualRulesetFile);
+          // rulesetFile = path.resolve(getDocumentPath(configuration.workspaceFolder.uri) ?? '', actualRulesetFile);
+          rulesetFile = path.resolve(getDocumentPath(configuration.workspaceFolder.uri) ?? '', configuration.rulesetFile);
         } else {
           // Somehow(?) there's no workspace path (maybe it's just an open file?) so... do our best.
-          rulesetFile = actualRulesetFile;
+          // rulesetFile = actualRulesetFile;
+          rulesetFile = configuration.rulesetFile;
         }
       } else {
         // Nothing configured, load the default (.spectral.yml in the same folder as the workspace).
