@@ -3,3 +3,4 @@ node_modules/
 dist/
 .idea/
 .vscode-test/
+client/src/__tests__/e2e/.vscode
