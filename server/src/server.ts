@@ -190,6 +190,7 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
 
       connection.console.log(`Using ruleset file: ${configuration.rulesetFile}.`);
 
+      let rulesetFileIsUrl: boolean = false;
       if (configuration.rulesetFile) {
         // check for a remote ruleset
         // let actualRulesetFile: string = configuration.rulesetFile;
@@ -210,8 +211,12 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
         //   connection.console.log(`Using temp ruleset file: ${actualRulesetFile}.`);
         // }
 
-        // A ruleset was specified, use that if it exists (relative to workspace).
-        if (configuration.workspaceFolder) {
+        // if ruleset is a uri with http/https scheme then we will resolve it later
+        const ruleSetUri: URI = URI.parse(configuration.rulesetFile);
+        rulesetFileIsUrl = URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http');
+
+        if (configuration.workspaceFolder && !rulesetFileIsUrl) {
+          // A ruleset was specified, use that if it exists (relative to workspace).
           // Calculate the absolute path to the ruleset.
           // rulesetFile = path.resolve(getDocumentPath(configuration.workspaceFolder.uri) ?? '', actualRulesetFile);
           rulesetFile = path.resolve(getDocumentPath(configuration.workspaceFolder.uri) ?? '', configuration.rulesetFile);
@@ -225,7 +230,7 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
         rulesetFile = (await getDefaultRulesetFile(configuration.workspaceFolder?.uri)) ?? null;
       }
 
-      if (rulesetFile && fs.existsSync(rulesetFile)) {
+      if (rulesetFile && (rulesetFileIsUrl || fs.existsSync(rulesetFile))) {
         // Only use the ruleset if we can find it. If we can't, it's not an
         // error - it could just be that the person doesn't have their default
         // rules in place or is working on setting things up.
@@ -235,11 +240,15 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
           return settings;
         }
 
-        connection.sendNotification(StartWatcherNotification.type, { path: rulesetFile });
+        if (!rulesetFileIsUrl) {
+          connection.sendNotification(StartWatcherNotification.type, { path: rulesetFile });
+        }
         try {
           const { ruleset, dependencies } = await Linter.loadRuleset(rulesetFile, { fs, fetch });
-          for (const dependency of dependencies) {
-            connection.sendNotification(StartWatcherNotification.type, { path: dependency });
+          if (!rulesetFileIsUrl) {
+            for (const dependency of dependencies) {
+              connection.sendNotification(StartWatcherNotification.type, { path: dependency });
+            }
           }
 
           settings.ruleset = ruleset;
