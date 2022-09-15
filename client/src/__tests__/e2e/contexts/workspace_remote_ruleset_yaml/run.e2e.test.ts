@@ -10,14 +10,13 @@ import { workspace } from 'vscode';
 
 import * as httpTestServers from 'http-test-servers';
 
+// set up our remote rules url using http-test-servers
 const responseBody = `---
 extends: 'spectral:oas'
 rules:
   oas3-schema: hint
   info-contact: 'off'
 `;
-
-// const fetchMock = require('fetch-mock');
 
 const routes = {
   spectralJs: {
@@ -37,11 +36,6 @@ const servers = {
 const testServers = httpTestServers(routes, servers);
 
 suiteSetup(async () => {
-  // fetchMock.get('https://dev.api.oneadvanced.io/rules/.spectral.js',
-  //   responseBody,
-  //   {
-  //     status: 200,
-  //   });
   await testServers.start(() => {
     console.log('Staring test servers on port 3006...');
   });

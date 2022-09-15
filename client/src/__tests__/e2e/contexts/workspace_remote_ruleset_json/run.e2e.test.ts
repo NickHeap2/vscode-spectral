@@ -10,6 +10,7 @@ import { workspace } from 'vscode';
 
 import * as httpTestServers from 'http-test-servers';
 
+// set up our remote rules url using http-test-servers
 const responseBody = {
   extends: 'spectral:oas',
   rules: {
