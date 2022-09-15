@@ -31,7 +31,6 @@ import {
 } from './notifications';
 import { BufferedMessageQueue } from './queue';
 import { makePublishDiagnosticsParams } from './util';
-// import * as tmp from 'tmp';
 
 /**
  * The connection on which communication between the extension (client) and the
