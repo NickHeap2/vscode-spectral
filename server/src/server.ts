@@ -190,7 +190,7 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
 
       connection.console.log(`Using ruleset file: ${configuration.rulesetFile}.`);
 
-      let rulesetFileIsUrl: boolean = false;
+      let rulesetFileIsUrl = false;
       if (configuration.rulesetFile) {
         // check for a remote ruleset
         // let actualRulesetFile: string = configuration.rulesetFile;

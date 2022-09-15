@@ -91,12 +91,6 @@ suite('Workspace, remote ruleset json', () => {
     const docUri = vscode.Uri.file(docPath);
     await openFile(docUri);
 
-    // console.error('Reading output channel...');
-    // const channelId: vscode.Uri = await retrieveOutputChannelId();
-    // const text = await readFromOutputChannelId(channelId);
-    // console.error(text);
-    // console.error('Read output channel');
-
     return vscode.languages.getDiagnostics(docUri);
   };
 });
