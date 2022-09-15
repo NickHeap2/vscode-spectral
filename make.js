@@ -36,8 +36,7 @@ target.package = async () => {
   await buildAll();
 
   pushd(outputPath.dist);
-  // run(`node ../node_modules/.bin/vsce package -o ${outputPath.artifacts}`);
-  run(`..\\node_modules\\.bin\\vsce package -o ${outputPath.artifacts}`);
+  run(`node ../node_modules/.bin/vsce package -o ${outputPath.artifacts}`);
   popd();
 };
 
