@@ -14,10 +14,6 @@ export const activate = async (): Promise<void> => {
   console.info(`Extension '${ext.id}' v${ext.packageJSON.version} has been successfully activated.`);
 };
 
-export const getRulesetFile = (): any => {
-  return vscode.workspace.getConfiguration('spectral').get('rulesetFile');
-};
-
 export const setRulesetFile = (rulesetFile: string): void => {
   try {
     vscode.workspace.getConfiguration('spectral')

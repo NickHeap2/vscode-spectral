@@ -192,25 +192,6 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
 
       let rulesetFileIsUrl = false;
       if (configuration.rulesetFile) {
-        // check for a remote ruleset
-        // let actualRulesetFile: string = configuration.rulesetFile;
-        // const ruleSetUri: URI = URI.parse(actualRulesetFile);
-
-        // connection.console.log(`Is ${actualRulesetFile} a http/https URI?: ${URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http')}.`);
-        // if (URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http')) {
-        //   connection.console.log(`Downloading ruleset file: ${actualRulesetFile}.`);
-
-        //   const extension = path.extname(actualRulesetFile);
-        //   // download ruleset
-        //   const response: any = await fetch(ruleSetUri.toString());
-        //   const remoteRulesetText: string = await response.text();
-        //   // write contents to temp file
-        //   const tempFileName: tmp.FileResult = tmp.fileSync({ postfix: extension });
-        //   fs.writeFileSync(tempFileName.name, remoteRulesetText);
-        //   actualRulesetFile = tempFileName.name;
-        //   connection.console.log(`Using temp ruleset file: ${actualRulesetFile}.`);
-        // }
-
         // if ruleset is a uri with http/https scheme then we will resolve it later
         const ruleSetUri: URI = URI.parse(configuration.rulesetFile);
         rulesetFileIsUrl = URI.isUri(ruleSetUri) && (ruleSetUri.scheme === 'https' || ruleSetUri.scheme === 'http');

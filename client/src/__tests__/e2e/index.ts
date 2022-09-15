@@ -4,7 +4,6 @@ import { randomBytes } from 'crypto';
 
 // The folder containing the Extension Manifest package.json
 // Passed to `--extensionDevelopmentPath`
-console.error(__dirname);
 const extensionDevelopmentPath = path.resolve(__dirname, '../../../../dist');
 console.info(`Loading extension from '${extensionDevelopmentPath}'`,);
 
@@ -44,7 +43,6 @@ interface TestCase {
   try {
     const vscodeExecutablePath = await downloadAndUnzipVSCode('1.48.0');
 
-
     for (const tc of testCases) {
       console.info(`Using VSCode from '${vscodeExecutablePath}'`,);
 
@@ -57,10 +55,6 @@ interface TestCase {
         tc.workspace = path.resolve(__dirname, tc.workspace);
       } else {
         tc.workspace = `blank_${randomBytes(8).toString('hex')}`;
-        const userDataDir = path.resolve(__dirname, './.vscode');
-        console.info(`Using userDataDir '${userDataDir}'`);
-        launchArgs.push('--user-data-dir');
-        launchArgs.push(`${userDataDir}`);
       }
 
       launchArgs.push(tc.workspace);
