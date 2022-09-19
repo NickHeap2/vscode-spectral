@@ -186,6 +186,7 @@ function resolveSettings(document: TextDocument): Thenable<TextDocumentSettings>
           settings.validate = false;
           return settings;
         }
+        // ignore if any negative globs match
         if (negativeGlobs.some((glob) => glob.match(docPath))) {
           connection.console.log(`File ${document.uri} matches a specified negative file glob; skipping.`);
           settings.validate = false;
